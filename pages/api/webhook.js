@@ -1,10 +1,15 @@
-import fetch from 'node-fetch';
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Only POST allowed');
+  if (req.method !== 'POST') {
+    return res.status(405).send('Only POST allowed');
+  }
 
   const body = req.body;
-  if (body.challenge) return res.status(200).json({ challenge: body.challenge });
+
+  // ✅ Nếu là xác minh từ Lark
+  if (body.challenge) {
+    return res.status(200).json({ challenge: body.challenge });
+  }
+
 
   try {
     const keyword = body.event?.message?.content?.text?.trim();
