@@ -7,12 +7,12 @@ export default async function handler(req, res) {
 
   let body = req.body;
 
-  // 👇 Fix cho trường hợp body là string (Lark quốc tế)
+  // ✅ Lark có thể gửi body là chuỗi, cần parse
   if (typeof body === 'string') {
     try {
       body = JSON.parse(body);
     } catch (e) {
-      console.error('Lỗi JSON:', e);
+      console.error('❌ Invalid JSON:', e);
       return res.status(400).json({ error: 'Invalid JSON format' });
     }
   }
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   try {
     const keyword = body.event?.message?.content?.text?.trim();
     if (!keyword) {
-      return res.status(200).json({ status: 'No keyword received' });
+      return res.status(200).json({ status: 'No keyword found' });
     }
 
     const apiUrl = `https://api.keywordtool.io/v2/search/keywords/google?apikey=${process.env.KEYWORDTOOL_API_KEY}&keyword=${encodeURIComponent(keyword)}&metrics=true&language=vi&country=vn`;
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ status: 'ok' });
   } catch (error) {
-    console.error('Xử lý thất bại:', error);
+    console.error('❌ Lỗi xử lý:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
@@ -79,3 +79,13 @@ async function replyToLark(chatId, text) {
     })
   });
 }
+
+// ✅ ⚙️ Cấu hình để Next.js không chặn body dạng JSON
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '1mb',
+      raw: false
+    }
+  }
+};
